@@ -33,7 +33,6 @@ A front-end recreation of the Rejouice landing page experience built with HTML, 
 └── img/
     ├── swiper/
     ├── reel-full.mp4
-    ├── reel-full_68kB1xPl.mp4
     └── other images and videos
 ```
 
