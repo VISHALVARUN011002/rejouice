@@ -1,184 +1,218 @@
-function locoScroll () {
-     
 gsap.registerPlugin(ScrollTrigger);
 
-// Using Locomotive Scroll from Locomotive https://github.com/locomotivemtl/locomotive-scroll
+const main = document.querySelector("#main");
+const isTouchDevice = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let locoScrollInstance;
 
-const locoScroll = new LocomotiveScroll({
-  el: document.querySelector("#main"),
-  smooth: true
-});
-// each time Locomotive Scroll updates, tell ScrollTrigger to update too (sync positioning)
-locoScroll.on("scroll", ScrollTrigger.update);
+function initLocoScroll() {
+    if (!window.LocomotiveScroll || !main) return;
 
-// tell ScrollTrigger to use these proxy methods for the "#main" element since Locomotive Scroll is hijacking things
-ScrollTrigger.scrollerProxy("#main", {
-  scrollTop(value) {
-    return arguments.length ? locoScroll.scrollTo(value, 0, 0) : locoScroll.scroll.instance.scroll.y;
-  }, // we don't have to define a scrollLeft because we're only scrolling vertically.
-  getBoundingClientRect() {
-    return {top: 0, left: 0, width: window.innerWidth, height: window.innerHeight};
-  },
-  // LocomotiveScroll handles things completely differently on mobile devices - it doesn't even transform the container at all! So to get the correct behavior and avoid jitters, we should pin things with position: fixed on mobile. We sense it by checking to see if there's a transform applied to the container (the LocomotiveScroll-controlled element).
-  pinType: document.querySelector("#main").style.transform ? "transform" : "fixed"
-});
-
-
-
-
-
-
-// each time the window updates, we should refresh ScrollTrigger and then update LocomotiveScroll. 
-ScrollTrigger.addEventListener("refresh", () => locoScroll.update());
-
-// after everything is set up, refresh() ScrollTrigger and update LocomotiveScroll because padding may have been added for pinning, etc.
-ScrollTrigger.refresh();
-
-
-} 
-
-locoScroll();
-
-
-
-
-
-
-function updateCursorPosition() {
-    var page1Content = document.querySelector("#page1-content");
-var cursor = document.querySelector("#cursor");
-
-page1Content.addEventListener("mousemove", function(e) {
-    gsap.to(cursor, {
-        x: e.clientX,
-        y: e.clientY,
-       
-       
+    locoScrollInstance = new LocomotiveScroll({
+        el: main,
+        smooth: !isTouchDevice && !reduceMotion,
+        lerp: 0.08,
+        multiplier: 0.9,
+        smartphone: {
+            smooth: false
+        },
+        tablet: {
+            smooth: !reduceMotion
+        }
     });
-});
 
-page1Content.addEventListener("mouseenter", function() {
-    gsap.to(cursor, {
-        scale: 1,
-        opacity: 1
-       
-    });
-});
+    locoScrollInstance.on("scroll", ScrollTrigger.update);
 
-page1Content.addEventListener("mouseleave", function() {
-    gsap.to(cursor, {
-        scale: 0,
-        opacity: 0
-       
+    ScrollTrigger.scrollerProxy(main, {
+        scrollTop(value) {
+            if (arguments.length) {
+                locoScrollInstance.scrollTo(value, { duration: 0, disableLerp: true });
+                return;
+            }
+
+            return locoScrollInstance.scroll.instance.scroll.y;
+        },
+        getBoundingClientRect() {
+            return {
+                top: 0,
+                left: 0,
+                width: window.innerWidth,
+                height: window.innerHeight
+            };
+        },
+        pinType: main.style.transform ? "transform" : "fixed"
     });
-});
+
+    ScrollTrigger.addEventListener("refresh", () => locoScrollInstance.update());
+    ScrollTrigger.refresh();
+
+    window.addEventListener("resize", () => {
+        locoScrollInstance.update();
+        ScrollTrigger.refresh();
+    });
 }
 
- updateCursorPosition();
+function initMenu() {
+    const toggle = document.querySelector(".menu-toggle");
+    const menu = document.querySelector("#site-menu");
 
-  function page2Animation() {
+    if (!toggle || !menu) return;
+
+    const closeMenu = () => {
+        toggle.setAttribute("aria-expanded", "false");
+        menu.setAttribute("aria-hidden", "true");
+        menu.classList.remove("is-open");
+        document.body.classList.remove("menu-open");
+    };
+
+    toggle.addEventListener("click", () => {
+        const willOpen = toggle.getAttribute("aria-expanded") !== "true";
+
+        toggle.setAttribute("aria-expanded", String(willOpen));
+        menu.setAttribute("aria-hidden", String(!willOpen));
+        menu.classList.toggle("is-open", willOpen);
+        document.body.classList.toggle("menu-open", willOpen);
+    });
+
+    menu.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", closeMenu);
+    });
+
+    window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeMenu();
+    });
+}
+
+function initMagneticCursor(areaSelector, cursorSelector) {
+    if (isTouchDevice || reduceMotion) return;
+
+    const area = document.querySelector(areaSelector);
+    const cursor = document.querySelector(cursorSelector);
+
+    if (!area || !cursor) return;
+
+    const quickX = gsap.quickTo(cursor, "x", { duration: 0.3, ease: "power3.out" });
+    const quickY = gsap.quickTo(cursor, "y", { duration: 0.3, ease: "power3.out" });
+
+    area.addEventListener("mousemove", (event) => {
+        quickX(event.clientX);
+        quickY(event.clientY);
+    });
+
+    area.addEventListener("mouseenter", () => {
+        gsap.to(cursor, { scale: 1, opacity: 1, duration: 0.25, ease: "power2.out" });
+    });
+
+    area.addEventListener("mouseleave", () => {
+        gsap.to(cursor, { scale: 0, opacity: 0, duration: 0.25, ease: "power2.out" });
+    });
+}
+
+function initPage2Animation() {
+    if (reduceMotion) return;
+
     gsap.from(".elem h1", {
-        y: 120,
-        stagger: 0.25,
+        yPercent: 100,
         duration: 1,
+        ease: "power3.out",
         scrollTrigger: {
             trigger: "#page2",
-            scroller: "#main",
-            start: "top 40%",
-            // Corrected the typo here from 46%% to 46%
-            end: "top 37%", 
-            
-            scrub: 2
+            scroller: main,
+            start: "top 70%",
+            end: "top 35%",
+            scrub: 1.5
         }
     });
 }
 
-page2Animation();
+function initSwiper() {
+    if (!window.Swiper) return;
 
-
-
-
-
-    function updateSwiperAutoplay() {
-     var swiper = new Swiper(".mySwiper", {
-      slidesPerView: 1,
-      spaceBetween: 30,
-      loop: true,
-     autoplay: {
-        delay: 2500,
-        disableOnInteraction: true,
-      },
+    new Swiper(".mySwiper", {
+        slidesPerView: 1.15,
+        spaceBetween: 16,
+        loop: true,
+        grabCursor: true,
+        speed: reduceMotion ? 0 : 900,
+        autoplay: reduceMotion
+            ? false
+            : {
+                  delay: 2300,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true
+              },
+        breakpoints: {
+            480: {
+                slidesPerView: 1.6,
+                spaceBetween: 18
+            },
+            768: {
+                slidesPerView: 2.4,
+                spaceBetween: 22
+            },
+            1024: {
+                slidesPerView: 3.6,
+                spaceBetween: 24
+            },
+            1440: {
+                slidesPerView: 4.2,
+                spaceBetween: 28
+            }
+        }
     });
-    }
+}
 
-    updateSwiperAutoplay();
+function initLoaderAnimation() {
+    const timeline = gsap.timeline();
 
-
-    var tl =gsap.timeline()
-
-    tl.from("#loader h3", {
+    timeline.from("#loader h3", {
         x: 40,
         opacity: 0,
         stagger: 0.1,
-        duration: 1,
+        duration: reduceMotion ? 0.01 : 1,
         ease: "power2.out"
-    })
+    });
 
-    tl.to("#loader h3" , {
-        opacity:0,
+    timeline.to("#loader h3", {
+        opacity: 0,
         x: -20,
-        duration: 1,
-        stagger: 0.1,
-        
-    })
-
-   
-
-    tl.to("#loader" , {
-      opacity:0,
-      display: "none",
-      
-    })
-
-
-      tl.from("#page1-content h1" , {
-      y: 100,
-      opacity:0,
-      stagger: 0.2,    
-     duration: 0.1,
-     
-    })
-
-
-    function updateCursorupperPosition() {
-    var page4Content = document.querySelector("#page4-content");
-var cursor2 = document.querySelector("#cursor2");
-
-page4Content.addEventListener("mousemove", function(e) {
-    gsap.to(cursor2, {
-        x: e.clientX,
-        y: e.clientY,
-       
-       
+        duration: reduceMotion ? 0.01 : 0.8,
+        stagger: 0.08
     });
-});
 
-page4Content.addEventListener("mouseenter", function() {
-    gsap.to(cursor2, {
-        scale: 1,
-        opacity: 1
-       
+    timeline.to("#loader", {
+        opacity: 0,
+        display: "none",
+        duration: reduceMotion ? 0.01 : 0.4
     });
-});
 
-page4Content.addEventListener("mouseleave", function() {
-    gsap.to(cursor2, {
-        scale: 0,
-        opacity: 0
-       
+    timeline.from("#page1-content h1 span", {
+        yPercent: 100,
+        opacity: 0,
+        stagger: reduceMotion ? 0 : 0.06,
+        duration: reduceMotion ? 0.01 : 0.7,
+        ease: "power3.out"
     });
-});
 }
 
-updateCursorupperPosition()
-   
+function refreshAfterMediaLoads() {
+    const media = document.querySelectorAll("img, video");
+
+    media.forEach((item) => {
+        if (item.complete || item.readyState >= 1) {
+            ScrollTrigger.refresh();
+        }
+
+        item.addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
+        item.addEventListener("loadedmetadata", () => ScrollTrigger.refresh(), { once: true });
+    });
+}
+
+initLocoScroll();
+initMenu();
+initMagneticCursor("#page1-content", "#cursor");
+initMagneticCursor("#page4-content", "#cursor2");
+initPage2Animation();
+initSwiper();
+initLoaderAnimation();
+refreshAfterMediaLoads();

@@ -22,12 +22,18 @@
             <div id="cursor">
                 <h5>Play Reel</h5>
             </div>
-            <video autoplay loop muted src="./img/reel-full.mp4"></video>
+            <video autoplay loop muted playsinline preload="metadata" src="./img/reel-full.mp4"></video>
             <div id="page1-content">
                 <nav>
                     <h3>The Venture Agency</h3>
-                    <h4>Menu</h4>
+                    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">Menu</button>
                 </nav>
+                <div id="site-menu" class="site-menu" aria-hidden="true">
+                    <a href="#page1">Home</a>
+                    <a href="#page3">Work</a>
+                    <a href="#page5">Contact</a>
+                    <a href="#footer">Take a seat</a>
+                </div>
                 <h1>
 
                     <span>r</span><span>e</span><span>j</span><span>o</span><span>u</span><span>i</span><span>c</span><span>e</span>
@@ -65,19 +71,19 @@
 
             <div id="page3-elements">
                 <div class="box">
-                    <img src="./img/10022.jpeg" alt="image">
-                    <video autoplay loop muted src="./img/battery.mp4"></video>
+                    <img src="./img/10022.jpeg" alt="Battery campaign preview" loading="lazy" decoding="async">
+                    <video autoplay loop muted playsinline preload="metadata" src="./img/battery.mp4"></video>
                 </div>
                 <div class="box">
 
-                    <img src="./img/10024.jpeg" alt="image">
+                    <img src="./img/10024.jpeg" alt="Creative review preview" loading="lazy" decoding="async">
 
-                    <video autoplay loop muted src="./img/review.mp4"></video>
+                    <video autoplay loop muted playsinline preload="metadata" src="./img/review.mp4"></video>
 
                 </div>
-                <div class="box"> <img src="./img/10018.jpeg" alt="image">
+                <div class="box"> <img src="./img/10018.jpeg" alt="Ocean campaign preview" loading="lazy" decoding="async">
 
-                    <video autoplay loop muted src="./img/sea.mp4"></video>
+                    <video autoplay loop muted playsinline preload="metadata" src="./img/sea.mp4"></video>
 
                 </div>
 
@@ -89,7 +95,7 @@
             <div id="cursor2">
                 <h5>Play Reel</h5>
             </div>
-            <video autoplay loop muted src="./img/reel-full.mp4"></video>
+            <video autoplay loop muted playsinline preload="metadata" src="./img/reel-full.mp4"></video>
             <div id="page4-content"></div>
         </div>
 
@@ -102,22 +108,19 @@
                     <div class="swiper mySwiper">
                         <div class="swiper-wrapper">
                             <div class="swiper-slide">
-                                <img src="./img/swiper/vert1.jpg" alt="">
-                                <img src="./img/swiper/hor1.jpg" alt="">
-                                <img src="./img/swiper/hor2.jpg" alt="">
-                                <img src="./img/swiper/vert2.jpg" alt="">
-                                <img src="./img/swiper/ver3.jpg" alt="">
+                                <img src="./img/swiper/vert1.jpg" alt="Selected Rejouice visual" loading="lazy" decoding="async">
                             </div>
                             <div class="swiper-slide">
-
-                                <img src="./img/swiper/vert1.jpg" alt="">
-                                <img src="./img/swiper/hor1.jpg" alt="">
-                                <img src="./img/swiper/hor2.jpg" alt="">
-                                <img src="./img/swiper/vert2.jpg" alt="">
-                                <img src="./img/swiper/ver3.jpg" alt="">
-
-
-
+                                <img src="./img/swiper/hor1.jpg" alt="Selected Rejouice visual" loading="lazy" decoding="async">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="./img/swiper/hor2.jpg" alt="Selected Rejouice visual" loading="lazy" decoding="async">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="./img/swiper/vert2.jpg" alt="Selected Rejouice visual" loading="lazy" decoding="async">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="./img/swiper/ver3.jpg" alt="Selected Rejouice visual" loading="lazy" decoding="async">
                             </div>
 
                         </div>
